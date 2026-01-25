@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Вход в систему";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">СберБанк - Вход в систему</h4>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">
+                            @ViewBag.Error
+                        </div>
+                    }
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Имя пользователя</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                   value="@ViewBag.Username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="password" name="password"
+                                   value="Sber123!" required>
+                            <div class="form-text">Используйте пароль: <b>Sber123!</b> для всех пользователей</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Войти</button>
+                    </form>
+
+                    <hr>
+                    <div class="text-center small">
+                        <p>Тестовые пользователи:</p>
+                        <ul class="list-unstyled">
+                            <li><b>admin</b> - Администратор</li>
+                            <li><b>operator1</b> - Оператор</li>
+                            <li><b>analyst1</b> - Аналитик</li>
+                        </ul>
+                        <p>Пароль для всех: <b>Sber123!</b></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
