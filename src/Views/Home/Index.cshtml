@@ -1,0 +1,199 @@
+@model SiteSB.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Главная страница";
+}
+
+<div class="container-fluid">
+    <!-- Статистика -->
+    <div class="row dashboard-grid">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-value">@Model.TotalDepositors</div>
+                <div class="stats-label">Всего вкладчиков</div>
+                <i class="bi bi-people-fill fs-1 text-primary mt-3"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-value">@Model.ActiveDeposits</div>
+                <div class="stats-label">Активных вкладов</div>
+                <i class="bi bi-wallet-fill fs-1 text-success mt-3"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-value">@Model.TotalAmount.ToString("C")</div>
+                <div class="stats-label">Общая сумма вкладов</div>
+                <i class="bi bi-cash-stack fs-1 text-warning mt-3"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <div class="stats-value">@DateTime.Now.ToString("dd.MM.yyyy")</div>
+                <div class="stats-label">Текущая дата</div>
+                <i class="bi bi-calendar-check fs-1 text-info mt-3"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Банковские продукты -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-collection"></i> Банковские продукты</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-success text-white">
+                                    <h6>Вклад "Сберегательный"</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Ставка:</strong> 5,2%</p>
+                                    <p><strong>Сумма:</strong> от 1 000 ₽</p>
+                                    <p><strong>Срок:</strong> 1-36 мес.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-primary text-white">
+                                    <h6>Накопительный счёт</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Ставка:</strong> 4,0%</p>
+                                    <p><strong>Сумма:</strong> от 1 ₽</p>
+                                    <p><strong>Условия:</strong> Свободное пополнение/снятие</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-warning text-white">
+                                    <h6>Пенсионный вклад</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Ставка:</strong> 6,0%</p>
+                                    <p><strong>Сумма:</strong> от 10 000 ₽</p>
+                                    <p><strong>Срок:</strong> 12-60 мес.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100">
+                                <div class="card-header bg-info text-white">
+                                    <h6>Детский вклад</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Ставка:</strong> 5,5%</p>
+                                    <p><strong>Сумма:</strong> от 5 000 ₽</p>
+                                    <p><strong>Срок:</strong> до 18 лет</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Последние транзакции -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-clock-history"></i> Последние транзакции</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentTransactions != null && Model.RecentTransactions.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Тип операции</th>
+                                        <th>Сумма</th>
+                                        <th>Дата</th>
+                                        <th>Описание</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var transaction in Model.RecentTransactions)
+                                    {
+                                        <tr>
+                                            <td>@transaction.Id</td>
+                                            <td>
+                                                @{
+                                                    var badgeClass = "bg-secondary";
+                                                    if (transaction.TransactionType == "Пополнение")
+                                                        badgeClass = "bg-success";
+                                                    else if (transaction.TransactionType == "Снятие")
+                                                        badgeClass = "bg-danger";
+                                                    else if (transaction.TransactionType == "Начисление процентов")
+                                                        badgeClass = "bg-info";
+                                                }
+                                                <span class="badge @badgeClass">
+                                                    @transaction.TransactionType
+                                                </span>
+                                            </td>
+                                            <td>@transaction.Amount.ToString("C")</td>
+                                            <td>@transaction.TransactionDate.ToString("dd.MM.yyyy HH:mm")</td>
+                                            <td>@transaction.Description</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Нет транзакций для отображения
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stats-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        text-align: center;
+        height: 100%;
+    }
+
+    .stats-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .stats-label {
+        font-size: 1rem;
+        color: #7f8c8d;
+        margin-bottom: 15px;
+    }
+
+    .dashboard-grid {
+        margin-bottom: 30px;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 600;
+    }
+</style>
