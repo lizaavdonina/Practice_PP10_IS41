@@ -1,3 +1,8 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace SiteSB.Models
+{
 public class AuditLog
     {
         [Key]
