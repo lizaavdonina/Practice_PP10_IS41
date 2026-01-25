@@ -1,3 +1,8 @@
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace SiteSB.Models
+{
 public class DepositType
     {
         [Key]
