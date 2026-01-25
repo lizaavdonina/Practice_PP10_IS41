@@ -1,0 +1,224 @@
+@model SiteSB.Controllers.MonitoringViewModel
+@{
+    ViewData["Title"] = "Мониторинг системы";
+    Layout = "_Layout"; // или null, если не используете макет
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-speedometer2"></i> @ViewData["Title"]</h1>
+        <div>
+            <a asp-action="AuditLogs" class="btn btn-outline-primary">
+                <i class="bi bi-journal-text"></i> Журнал аудита
+            </a>
+            <a asp-action="SystemInfo" class="btn btn-outline-info ms-2">
+                <i class="bi bi-info-circle"></i> Информация о системе
+            </a>
+        </div>
+    </div>
+
+    <!-- Статус системы -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-hdd"></i> Статус системы</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <small class="text-muted">Статус системы</small>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success rounded-circle me-2" style="width: 10px; height: 10px;"></div>
+                                    <h5 class="mb-0">@Model.SystemStatus</h5>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">База данных</small>
+                                <div class="d-flex align-items-center">
+                                    <div class="@(Model.DatabaseStatus == "Подключено" ? "bg-success" : "bg-danger") rounded-circle me-2"
+                                         style="width: 10px; height: 10px;"></div>
+                                    <h5 class="mb-0">@Model.DatabaseStatus</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <small class="text-muted">Последнее резервное копирование</small>
+                                <h5>@Model.LastBackup.ToString("dd.MM.yyyy HH:mm")</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> Пользователи</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="display-4 text-primary">@Model.TotalUsers</div>
+                            <small class="text-muted">Всего пользователей</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="display-4 text-success">@Model.ActiveUsers</div>
+                            <small class="text-muted">Активных</small>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="progress" style="height: 8px;">
+                            @{
+                                var percentage = Model.TotalUsers > 0 ? (Model.ActiveUsers * 100 / Model.TotalUsers) : 0;
+                            }
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: @percentage%"
+                                 aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">@percentage% активных пользователей</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика аудита -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Статистика аудита</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="display-3 text-info">@Model.TotalAuditLogs</div>
+                            <small class="text-muted">Всего записей в журнале</small>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="display-3 text-warning">@Model.RecentLogs.Count</div>
+                            <small class="text-muted">Последние записи</small>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="display-3 text-success">
+                                @(Model.RecentLogs.Count > 0 ? Model.RecentLogs.Max(l => l.Timestamp).ToString("HH:mm") : "Нет")
+                            </div>
+                            <small class="text-muted">Последняя активность</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Последние события -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="bi bi-clock-history"></i> Последние события</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.RecentLogs.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Время</th>
+                                <th>Пользователь</th>
+                                <th>Действие</th>
+                                <th>Детали</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var log in Model.RecentLogs.Take(10))
+                            {
+                                <tr>
+                                    <td nowrap>@log.Timestamp.ToString("dd.MM.yyyy HH:mm:ss")</td>
+                                    <td>
+                                        @if (log.User != null)
+                                        {
+                                            <span class="badge bg-primary">@log.User.Username</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Система</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="badge @GetActionBadgeClass(log.Action ?? "")">@log.Action</span>
+                                    </td>
+                                    <td class="text-truncate" style="max-width: 300px;" title=@log.Action>
+                                        @log.Action
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <a asp-action="AuditLogs" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-arrow-right"></i> Показать все записи
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4">
+                    <i class="bi bi-journal-x display-1 text-muted"></i>
+                    <p class="text-muted mt-3">Нет записей в журнале аудита</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Информационные карточки -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-shield-check display-4 text-success mb-3"></i>
+                    <h5>Безопасность</h5>
+                    <p class="text-muted small">Все системы работают в штатном режиме</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-database display-4 text-primary mb-3"></i>
+                    <h5>База данных</h5>
+                    <p class="text-muted small">@Model.TotalAuditLogs записей, подключение стабильно</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up display-4 text-warning mb-3"></i>
+                    <h5>Производительность</h5>
+                    <p class="text-muted small">@Model.ActiveUsers активных пользователей</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    private string GetActionBadgeClass(string action)
+    {
+        return action?.ToLower() switch
+        {
+            "login" => "bg-success",
+            "logout" => "bg-secondary",
+            "create" => "bg-primary",
+            "update" => "bg-warning",
+            "delete" => "bg-danger",
+            "error" => "bg-danger",
+            _ => "bg-info"
+        };
+    }
+}
